@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Throw Your Life</string>
+    <string name="action_settings">Settings</string>
+    <string name="htp">Your life is what you throw to the asteroids that come towards you. There is only one way to recover the life you threw: hit the wall before you hit the asteroid. As you play, you won\'t have enough lives for the asteroids coming on each level(on level 1 you have enough lives), so try to recover them and play safe.</string>
+</resources>

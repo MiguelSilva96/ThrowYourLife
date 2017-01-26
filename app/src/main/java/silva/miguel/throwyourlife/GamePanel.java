@@ -1,5 +1,6 @@
 package silva.miguel.throwyourlife;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -58,12 +59,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
 
     //Constructor
     public GamePanel(Context context, ImageButton pauseButton, int width, int height) {
+        super(context);
         float scaleX, scaleY;
         int textSize, missilSpeed, lifeIconWP, lifeTextHP, 
-        	lifeTextHP, lifeTextHP, levelTextWP, levelTextHP, 
+        	lifeTextWP, lifeIconHP, levelTextWP, levelTextHP,
         	levelupWP, levelupHP, enemiesTextWP, enemiesTextHP, 
         	startTextWP, startTextHP;
-        super(context);
         maxLevel = 1;
         scoreStart = 0;
         thread = new MainThread(getHolder(), this);
@@ -73,17 +74,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
         speed = (int) (height * Constants.PERCSPEED);
         scaleX = (float) width / Constants.WIDTH;
         scaleY = (float) height / Constants.HEIGHT;
-        textSize = (int) (30 * (scaleX + scaleY)/2);
+        textSize = (int) (40 * (scaleX + scaleY)/2);
         missilSpeed = (int) (height * Constants.PERCSPDMISL);
         lifeIconWP = (int) (10 * scaleX);
         lifeIconHP = (int) (height - (35 * scaleY));
         lifeTextWP = (int) (40 * scaleX);
         lifeTextHP = (int) (height - (10 * scaleY));
-        levelTextWP = (int) (width - (130 * scaleX));
-        levelupWP = (int) (width/2 - (80 * scaleX));
-        enemiesTextWP = (int) (width - (250 * scaleX));
-        enemiesTextHP = (int) (30 * scaleY);
-        startTextWP = (int) (width/2 - (100 * scaleX));
+        levelTextWP = (int) (width - (220 * scaleX));
+        levelupWP = (int) (width/2 - (110 * scaleX));
+        enemiesTextWP = (int) (width - (530 * scaleX));
+        enemiesTextHP = (int) (70 * scaleY);
+        startTextWP = (int) (width/2 - (170 * scaleX));
         startTextHP = height/2;
         levelTextHP = lifeTextHP;
         levelupHP = height/2;
@@ -301,13 +302,40 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
         }
     }
 
+    public void drawStroke(Canvas canvas, int aimScore, Typeface plain) {
+        Paint paintStroke = new Paint();
+        int stroke = (int) (2 * (constants.scaleX+constants.scaleY/2));
+        paintStroke.setColor(Color.BLACK);
+        paintStroke.setTextSize(constants.textSize);
+        paintStroke.setStyle(Paint.Style.STROKE);
+        paintStroke.setStrokeWidth(stroke);
+        paintStroke.setTypeface(Typeface.create(plain, Typeface.BOLD));
+        if(player.getPlaying()) {
+            canvas.drawText(" " + player.getLife(),
+                    constants.lifeTextWP,
+                    constants.lifeTextHP, paintStroke);
+            canvas.drawText("LEVEL " + player.getLevel(),
+                    constants.levelTextWP,
+                    constants.levelTextHP, paintStroke);
+            canvas.drawText("Enemies left: " + (aimScore - player.getScore())/10,
+                    constants.enemiesTextWP,
+                    constants.enemiesTextHP, paintStroke);
+        }
+        else
+            canvas.drawText("Touch to start!",
+                    constants.startTextWP,
+                    constants.startTextHP, paintStroke);
+    }
+
     public void drawLifeAndLevel(Canvas canvas) {
         Paint paint  = new Paint();
         int level    = player.getLevel();
         int aimScore = (100 + (20*(level - 1))) + scoreStart;
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.argb(255,255,255,51));
         paint.setTextSize(constants.textSize);
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        Typeface plain = Typeface.createFromAsset(getContext().getAssets(),
+                "fonts/FREEDOM.ttf");
+        paint.setTypeface(Typeface.create(plain, Typeface.BOLD));
         if(player.getPlaying()) {
             canvas.drawBitmap(sSprites[5], 
             	constants.lifeIconWP, 
@@ -334,6 +362,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
                     	constants.levelupWP, 
                     	constants.levelupHP, paint);
         }
+        drawStroke(canvas, aimScore, plain);
     }
 
     public void addEnemies() {

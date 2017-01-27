@@ -38,6 +38,12 @@ import android.util.Base64;
 
 public class SecurePreferences {
 
+	class SecurePreferencesException extends RuntimeException {
+    	public SecurePreferencesException(Throwable e) {
+       		super(e);
+    	}
+	}
+
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
     private static final String KEY_TRANSFORMATION = "AES/ECB/PKCS5Padding";
     private static final String SECRET_KEY_HASH_TRANSFORMATION = "SHA-256";

@@ -1,5 +1,7 @@
 package silva.miguel.throwyourlife;
 
+import android.media.AudioManager;
+
 import java.io.Serializable;
 
 /**
@@ -73,6 +75,10 @@ public class Constants implements Serializable{
     //percent of pixels for speeds
     protected static final double PERCSPEED   = 0.0046875;
     protected static final double PERCSPDMISL = 0.0156250;
+
+    //Constants related to Audio
+    protected static final int STREAMTYPE = AudioManager.STREAM_MUSIC;
+    protected static final int MAX_STREAMS = 10;
 
     //game frames per second
     protected static final int FPS = 60;

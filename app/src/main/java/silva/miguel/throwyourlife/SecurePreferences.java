@@ -38,7 +38,7 @@ import android.util.Base64;
 
 public class SecurePreferences {
 
-	class SecurePreferencesException extends RuntimeException {
+    static class SecurePreferencesException extends RuntimeException {
     	public SecurePreferencesException(Throwable e) {
        		super(e);
     	}

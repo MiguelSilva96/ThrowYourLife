@@ -9,7 +9,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.Image;
+import android.media.SoundPool;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -41,6 +45,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
     private ArrayList<Missil> missils;
     private ArrayList<Enemy> enemies;
     private ArrayList<Explosion> explosions;
+    private AudioManager audioManager;
+    private SoundPool soundEffects;
+    private float volume;
     private boolean isTouchable;
 
     private boolean started;
@@ -50,6 +57,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
     private int speed;
     private int maxLevel;
     private int scoreStart;
+    private int hitWallSound, throwSound;
+    private int loseSound, levelUpSound;
     private Random rand;
     private Constants constants;
 
@@ -95,6 +104,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
         getHolder().addCallback(this); //Add callback to intercept events
         setFocusable(true); //To control events
         this.pauseButton = pauseButton;
+        setupSoundPool();
     }
 
     @Override
@@ -182,6 +192,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
                     player.setSpritesheet(sSprites[1]);
                 else
                     player.setSpritesheet(sSprites[2]);
+                soundEffects.play(throwSound, volume, volume, 1, 0, 1f);
                 player.decLife();
                 }
             return true;
@@ -398,7 +409,37 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
         });
     }
 
+    private void setupSoundPool() {
+        // AudioManager audio settings for adjusting the volume
+        Context c = getContext();
+        audioManager = (AudioManager) c.getSystemService(c.AUDIO_SERVICE);
+        // Current volume Index of particular stream type.
+        float currentVolumeIndex = (float) audioManager.getStreamVolume(Constants.STREAMTYPE);
+        // Get the maximum volume index for a particular stream type.
+        float maxVolumeIndex  = (float) audioManager.getStreamMaxVolume(Constants.STREAMTYPE);
+        // Volume (0 --> 1)
+        volume = currentVolumeIndex / maxVolumeIndex;
+        if (Build.VERSION.SDK_INT >= 21 ) {
 
+            AudioAttributes audioAttrib = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+
+            SoundPool.Builder builder= new SoundPool.Builder();
+            builder.setAudioAttributes(audioAttrib).setMaxStreams(Constants.MAX_STREAMS);
+
+            soundEffects = builder.build();
+        }
+        else {
+            // Ja nao se usa, versoes antigas só
+            soundEffects = new SoundPool(Constants.MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+        }
+        levelUpSound = soundEffects.load(c, R.raw.levelup,1);
+        hitWallSound = soundEffects.load(c, R.raw.hitwall,1);
+        throwSound = soundEffects.load(c, R.raw.throwlife,1);
+        loseSound = soundEffects.load(c, R.raw.lose,1);
+    }
 
     public void initBitmaps() {
         sSprites[0] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),

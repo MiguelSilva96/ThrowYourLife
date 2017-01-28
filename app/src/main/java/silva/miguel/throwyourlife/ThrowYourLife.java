@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.Display;
@@ -30,6 +31,7 @@ public class ThrowYourLife extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         RelativeLayout rootPanel;
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();

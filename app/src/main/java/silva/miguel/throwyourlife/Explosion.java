@@ -31,7 +31,7 @@ public class Explosion extends GameObject implements Serializable{
             fms[i] = Bitmap.createBitmap(spritesheet, i*width, 0, width, height);
         }
         animation.setFrames(fms);
-        animation.setDelay(20);
+        animation.setDelay(15);
     }
 
     public boolean remove() {

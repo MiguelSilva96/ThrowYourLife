@@ -56,7 +56,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
     private long levelUpStartTime;
     private int speed;
     private int maxLevel;
-    private int scoreStart;
+    private int scoreStart, explosionSound;
     private int hitWallSound, throwSound;
     private int loseSound, levelUpSound;
     private Random rand;
@@ -201,7 +201,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
             player.setSpritesheet(sSprites[0]);
             return true;
         }
-
         return super.onTouchEvent(event);
     }
 
@@ -219,6 +218,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
                 Missil m = missils.get(i);
                 Enemy e  = enemies.get(j);
                 if(checkCollision(m, e)) {
+                    soundEffects.play(explosionSound,volume,volume,1,0,1f);
                     if(m.fezTabela())
                         player.incLife();
                     explosions.add(new Explosion(sSprites[6],
@@ -238,6 +238,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
     public void updateAndCheckCollisions() {
         int enemsize = enemies.size();
         if(player.getLife() < 0) {
+            soundEffects.play(loseSound,volume, volume, 1, 0, 1f);
             player.setPlaying(false);
             resumeGameObjects();
         }
@@ -247,6 +248,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
             if(e.getY() >= constants.heightToLose) {
                 enemies.remove(i);
                 player.setPlaying(false);
+                soundEffects.play(loseSound,volume, volume, 1, 0, 1f);
                 resumeGameObjects();
                 break;
             }
@@ -260,6 +262,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
             }
             else {
                 if(mx <= 0 || mx >= constants.positionHitWall) {
+                    soundEffects.play(hitWallSound,volume/2,volume/2,1,0,1f);
                     m.inverteDeclive();
                     m.setTabela(true);
                 }
@@ -273,6 +276,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
         int level = player.getLevel();
         if(score >= (100 + (20*(level - 1))) + scoreStart) {
             levelup = true;
+            soundEffects.play(levelUpSound, volume, volume, 1, 0, 1f);
             player.incLevel();
             player.setLife(9 + player.getLevel());
             levelUpStartTime = System.nanoTime();
@@ -410,17 +414,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
     }
 
     private void setupSoundPool() {
-        // AudioManager audio settings for adjusting the volume
         Context c = getContext();
         audioManager = (AudioManager) c.getSystemService(c.AUDIO_SERVICE);
-        // Current volume Index of particular stream type.
         float currentVolumeIndex = (float) audioManager.getStreamVolume(Constants.STREAMTYPE);
-        // Get the maximum volume index for a particular stream type.
         float maxVolumeIndex  = (float) audioManager.getStreamMaxVolume(Constants.STREAMTYPE);
-        // Volume (0 --> 1)
         volume = currentVolumeIndex / maxVolumeIndex;
         if (Build.VERSION.SDK_INT >= 21 ) {
-
             AudioAttributes audioAttrib = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_GAME)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -435,10 +434,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Se
             // Ja nao se usa, versoes antigas só
             soundEffects = new SoundPool(Constants.MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
         }
-        levelUpSound = soundEffects.load(c, R.raw.levelup,1);
-        hitWallSound = soundEffects.load(c, R.raw.hitwall,1);
+        loseSound  = soundEffects.load(c, R.raw.lose,1);
         throwSound = soundEffects.load(c, R.raw.throwlife,1);
-        loseSound = soundEffects.load(c, R.raw.lose,1);
+        levelUpSound = soundEffects.load(c, R.raw.levelup,1);
+        hitWallSound = soundEffects.load(c, R.raw.hitwall2,1);
+        explosionSound = soundEffects.load(c, R.raw.explosion,1);
     }
 
     public void initBitmaps() {
